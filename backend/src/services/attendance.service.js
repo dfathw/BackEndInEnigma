@@ -1,11 +1,21 @@
 const logEvent = require('../events/myEmitter');
 const Employee = require('../models/employee.model')
 const Attendance = require('../models/attendance.model')
+const Site = require('../models/site_master.model');
+const EmpAtt = require('../models/employeeAttendance.model');
+
 class AttendanceService {
     async getAllAttendance() {
         let result;
         try {
-            result = await Attendance.findAll({ include: Employee })
+            result = await Attendance.findAll({ include: [{
+                model:Employee,
+                include:[ Site ],
+                    attributes: {
+                        exclude: ["SiteMasterId",]
+                    }
+            }]
+            });
         } catch (e) {
             logEvent.emit('APP-ERROR', {
                 logTitle: 'GET-ATTENDANCE-SERVICE-FAILED',

@@ -1,10 +1,12 @@
 const Sequelize = require('sequelize');
 const connection = require('../../config/dbConn');
+const UUID = require('uuid');
+
 
 const Employee = connection.define('employee', {
     id: {
-        type: Sequelize.INTEGER,
-        autoIncrement: true,
+        type: Sequelize.UUID,
+        defaultValue: Sequelize.UUIDV1,
         primaryKey: true,
         allowNull: false
     },
@@ -35,7 +37,10 @@ const Employee = connection.define('employee', {
     identity: {
         type: Sequelize.ENUM('Simper', 'ID Card')
     },
-    place:{
+    distant_relative: {
+        type: Sequelize.STRING
+    },
+    place: {
         type: Sequelize.STRING
     }
 }, {

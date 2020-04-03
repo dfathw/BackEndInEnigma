@@ -1,5 +1,5 @@
 const logEvent = require('../events/logging.listener');
-const Sites = require('../models/sites.model');
+const Sites = require('../models/employeeAttendance.model');
 
 class SitesService {
     async getAllSites() {
