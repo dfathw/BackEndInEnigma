@@ -4,29 +4,14 @@ const logEvent = require('./events/myEmitter');
 const loggingListener = require('./events/logging.listener');
 const appMiddleware = require('./middlewares/app-middlewares');
 const appRoutes = require('./routes/index');
-const app = express();
-const server = http.createServer(app);
-const io = require('socket.io')(server);
 
 loggingListener();
-
-
-
+const app = express();
 app.use(appMiddleware);
 app.use(appRoutes);
-io.on('connection', function(socket) {
-    console.log('a user connected');
-    // socket.on('message', e => {
-    //     socket.emit(e);
-    // });
-    socket.on('disconnect', function() {
-        console.log('user disconnected');
-    });
-    socket.emit('type:string', 'hallo');
-});
-
-server.on('error', function(e) {
-    logEvent.emit('APP_ERROR', {
+const server = http.createServer(app);
+server.on('error', function(e){
+    logEvent.emit('APP_ERROR',{
         logTitle: 'APP_FAILED',
         logMessage: e
     });

@@ -1,5 +1,5 @@
 const logEvent = require('../events/logging.listener');
-const Sites = require('../models/site_master.model');
+const Sites = require('../models/employeeAttendance.model');
 
 class SitesService {
     async getAllSites() {
@@ -18,7 +18,7 @@ class SitesService {
     async getSitesByAlias(alias_name) {
         let result;
         try {
-            result = await Sites.findOne({ where: { alias_name: alias_name } });
+            result = await Sites.findOne({where: {alias_name : alias_name}});
         } catch (e) {
             logEvent.emit('APP-ERROR', {
                 logTitle: 'GET-SITES-SERVICE-FAILED',
@@ -28,12 +28,12 @@ class SitesService {
         }
         return result;
     };
-    async newSites(newSites) {
+    async newSites(newSites){
         let result;
-        try {
+        try{
             result = await Sites.create(newSites);
-        } catch (e) {
-            logEvent.emit('APP-ERROR', {
+        }catch (e){
+            logEvent.emit('APP-ERROR',{
                 logTitle: 'CREATE-SITES-SERVICE-FAILED',
                 logMessage: e
             });
@@ -41,14 +41,14 @@ class SitesService {
         }
         return result;
     };
-    async updateSites(updatedSites) {
+    async updateSites(updatedSites){
         let result;
-        const site = await Sites.findOne({ where: { alias_name: updatedSites.alias_name } })
+        const site = await Sites.findOne({where : {alias_name: updatedSites.alias_name}})
         site.location = updatedSites.location
-        try {
+        try{
             result = await site.save()
-        } catch (e) {
-            logEvent.emit('APP-ERROR', {
+        }catch (e){
+            logEvent.emit('APP-ERROR',{
                 logTitle: 'UPDATE-SITES-SERVICE-FAILED',
                 logMessage: e
             });
@@ -56,13 +56,13 @@ class SitesService {
         }
         return result;
     };
-    async deleteSite(deleted) {
-        const site = await Sites.findOne({ where: { alias_name: deleted.alias_name } });
+    async deleteSite(deleted){
+        const site = await Sites.findOne({where : {alias_name: deleted.alias_name}});
         let result;
-        try {
+        try{
             result = await site.destroy();
-        } catch (e) {
-            logEvent.emit('APP-ERROR', {
+        }catch (e){
+            logEvent.emit('APP-ERROR',{
                 logTitle: 'DELETE-SITES-SERVICE-FAILED',
                 logMessage: e
             });

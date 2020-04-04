@@ -1,13 +1,17 @@
 const logEvent = require('../events/logging.listener');
 const Employee = require('../models/employee.model');
-const Attendace = require('../models/attendance.model');
-const Site = require('../models/site_master.model')
+const Attendace = require('../models/attendance.model')
+const bcrypt = require('bcrypt');
+
+async function hashPassword(password) {
+    return await bcrypt.hash(password, 10)
+}
 
 class EmployeeService {
     async getAllEmployee() {
         let result;
         try {
-            result = await Employee.findAll({ include: [Site] });
+            result = await Employee.findAll();
         } catch (e) {
             logEvent.emit('APP-ERROR', {
                 logTitle: 'GET-EMPLOYEE-SERVICE-FAILED',
@@ -15,7 +19,6 @@ class EmployeeService {
             });
             throw new Error(e);
         }
-        return result;
     }
     async getEmployeeByName(name) {
         let result;
@@ -32,6 +35,8 @@ class EmployeeService {
     async createEmployee(newEmployee) {
         let result;
         try {
+            const { password } = newEmployee
+            await hashPassword(password);
             result = await Employee.create(newEmployee);
         } catch (e) {
             logEvent.emit('APP-ERROR', {
