@@ -1,6 +1,11 @@
 const logEvent = require('../events/logging.listener');
 const Employee = require('../models/employee.model');
 const Attendace = require('../models/attendance.model')
+const bcrypt = require('bcrypt');
+
+async function hashPassword(password) {
+    return await bcrypt.hash(password, 10)
+}
 
 class EmployeeService {
     async getAllEmployee() {
@@ -30,6 +35,8 @@ class EmployeeService {
     async createEmployee(newEmployee) {
         let result;
         try {
+            const { password } = newEmployee
+            await hashPassword(password);
             result = await Employee.create(newEmployee);
         } catch (e) {
             logEvent.emit('APP-ERROR', {
