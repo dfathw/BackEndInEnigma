@@ -37,6 +37,7 @@ class EmployeeService {
         try {
             const { password } = newEmployee
             await hashPassword(password);
+            newEmployee.password = hashPassword;
             result = await Employee.create(newEmployee);
         } catch (e) {
             logEvent.emit('APP-ERROR', {
