@@ -8,13 +8,14 @@ class AttendanceService {
     async getAllAttendance() {
         let result;
         try {
-            result = await Attendance.findAll({ include: [{
-                model:Employee,
-                include:[ Site ],
+            result = await Attendance.findAll({
+                include: [{
+                    model: Employee,
+                    include: [Site],
                     attributes: {
                         exclude: ["SiteMasterId",]
                     }
-            }]
+                }]
             });
         } catch (e) {
             logEvent.emit('APP-ERROR', {
@@ -52,7 +53,7 @@ class AttendanceService {
         return result;
     }
     async updateAttendance(newAttendance) {
-        const attendance = await Attendance.findOne({ where: { date: newAttendance.date , employeeId : newAttendance.employeeId} });
+        const attendance = await Attendance.findOne({ where: { date: newAttendance.date, employeeId: newAttendance.employeeId } });
         attendance.out_at = newAttendance.out_at;
         let result;
         try {
@@ -69,9 +70,9 @@ class AttendanceService {
     async deleteAttendance(deleted) {
         const attendance = await Attendance.findOne({ where: { date: deleted.date } });
         let result;
-        try{
+        try {
             result = await attendance.destroy();
-        }catch (e) {
+        } catch (e) {
             logEvent.emit('APP-ERROR', {
                 logTitle: 'DELETE-ATTENDANCE-SERVICE-FAILED',
                 logMessage: e

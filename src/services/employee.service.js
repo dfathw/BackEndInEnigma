@@ -1,17 +1,17 @@
 const logEvent = require('../events/logging.listener');
 const Employee = require('../models/employee.model');
-const Attendace = require('../models/attendance.model')
+const Site = require('../models/site_master.model');
 const bcrypt = require('bcrypt');
 
 async function hashPassword(password) {
-    return await bcrypt.hash(password, 10)
+    return await bcrypt.hash(password, 8)
 }
 
 class EmployeeService {
     async getAllEmployee() {
         let result;
         try {
-            result = await Employee.findAll();
+            result = await Employee.findAll({ include: Site });
         } catch (e) {
             logEvent.emit('APP-ERROR', {
                 logTitle: 'GET-EMPLOYEE-SERVICE-FAILED',
@@ -19,11 +19,12 @@ class EmployeeService {
             });
             throw new Error(e);
         }
+        return result;
     }
     async getEmployeeByName(name) {
         let result;
         try {
-            result = await Employee.findOne({ where: { name: name }, include: Attendace })
+            result = await Employee.findOne({ where: { name: name }, include: Site })
         } catch (e) {
             logEvent.emit('APP-ERROR', {
                 logTitle: 'GET-EMPLOYEE-SERVICE-FAILED',
@@ -31,13 +32,12 @@ class EmployeeService {
             });
             throw new Error(e);
         }
+        return result;
     }
     async createEmployee(newEmployee) {
         let result;
         try {
-            const { password } = newEmployee
-            await hashPassword(password);
-            newEmployee.password = hashPassword;
+            await hashPassword(newEmployee.password);
             result = await Employee.create(newEmployee);
         } catch (e) {
             logEvent.emit('APP-ERROR', {
@@ -46,6 +46,7 @@ class EmployeeService {
             });
             throw new Error(e);
         }
+        return result;
     }
     async updateEmployee(newEmployee) {
         const employee = await Employee.findOne({ where: { name: newEmployee.name } });
@@ -60,19 +61,21 @@ class EmployeeService {
             });
             throw new Error(e);
         }
+        return result;
     }
-    async deleteEmployee(deleted) {
-        const employee = await employee.findOne({ where: { name: deleted.name } });
+    async deleteEmployee(id) {
+        const employee = await employee.findByPk(id)
         let result;
         try {
             result = await employee.destroy();
         } catch (e) {
             logEvent.emit('APP-ERROR', {
-                logTitle: 'GET-PRODUCT-SERVICE-FAILED',
+                logTitle: 'DELETE-EMPLOYEE-SERVICE-FAILED',
                 logMessage: e
             });
             throw new Error(e);
         }
+        return result;
     }
 };
 module.exports = EmployeeService;

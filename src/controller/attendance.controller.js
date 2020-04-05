@@ -15,7 +15,7 @@ const createAttendance = async (req, res, service) => {
 const deleteAttendance = async (req, res, service) => {
     const deleted = req.params.date;
     const deletedAttend = await service.deleteAttendance(deleted);
-    res.send(deletedAttend )
+    res.send(deletedAttend)
 }
 const updateAttendance = async (req, res, service) => {
     const newAttendance = req.body;
