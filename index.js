@@ -6,7 +6,7 @@ const connection = require('./config/dbConn');
 dotenv.config();
 if (process.env.APP_NAME) {
     connection.authenticate().then(() => {
-        server.listen(process.env.APP_PORT, '0.0.0.0', function () {
+        server.listen(process.env.APP_PORT, '0.0.0.0', function() {
             if (server.listening) {
                 logEvent.emit('APP-INFO', {
                     logTitle: 'SERVER',

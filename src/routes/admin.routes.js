@@ -1,5 +1,5 @@
 const express = require('express');
-const route = express.Router();
+const router = express.Router();
 const AdminService = require('../services/admin.service');
 const { getAllAdmin, getAdminById, createAdmin } = require('../controller/admin.controller');
 const adminService = new AdminService();

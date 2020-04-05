@@ -8,6 +8,7 @@ const noRoute = require('./no.route');
 const logRoute = require('./log.route');
 
 router.use(logRoute);
+
 router.use('/attendance', absentRoutes);
 router.use('/employee', employeeRoutes);
 router.use('/admin', adminRoutes);
