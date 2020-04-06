@@ -3,8 +3,8 @@ const connection = require('../../config/dbConn');
 
 const Admin = connection.define('admin', {
     id: {
-        type: Sequelize.INTEGER,
-        autoIncrement: true,
+        type: Sequelize.UUID,
+        defaultValue: Sequelize.UUIDV1,
         primaryKey: true,
         allowNull: false,
     }, 
