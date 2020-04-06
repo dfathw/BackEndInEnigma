@@ -2,10 +2,20 @@ const getAllEmployee = async (req, res, service) => {
     const allEmployees = await service.getAllEmployee();
     res.send(allEmployees);
 }
-const getEmployeeByName = async (req, res, service) => {
-    const name = req.params.name;
-    const employee = await service.getEmployeeByName(name);
-    res.send(employee);
+const getEmployeeList = async (req, res, service) => {
+    try {
+        let employee;
+        if (req.query.site) {
+            const site = req.query.site
+            employee = await service.getEmployeeBySite(site);
+        } else if (req.query.name) {
+            const name = req.query.name;
+            employee = await service.getEmployeeByName(name);
+        }
+        res.send(employee);
+    } catch (e) {
+        res.sendStatus(500)
+    }
 }
 const createEmployee = async (req, res, service) => {
     const newEmployee = req.body;
@@ -23,4 +33,4 @@ const deleteEmployee = async (req, res, service) => {
     res.send({ id: id })
 }
 
-module.exports = { getAllEmployee, getEmployeeByName, createEmployee, updateEmployee, deleteEmployee }
+module.exports = { getAllEmployee, getEmployeeList, createEmployee, updateEmployee, deleteEmployee }

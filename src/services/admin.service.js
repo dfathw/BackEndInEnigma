@@ -36,8 +36,9 @@ class AdminService {
     async createAdmin(newAdmin) {
         let result;
         try {
-            await hashPassword(newAdmin.password);
-            result = await Admin.create();
+            const hashedPassword = await hashPassword(newAdmin.password);
+            newAdmin.password = hashedPassword;
+            result = await Admin.create(newAdmin);
         } catch (e) {
             logEvent.emit('APP-ERROR', {
                 logTitle: 'CREATE-ADMIN-SERVICE-FAILED',

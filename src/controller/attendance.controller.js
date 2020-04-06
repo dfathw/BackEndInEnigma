@@ -2,10 +2,20 @@ const getAllAttendance = async (req, res, service) => {
     const attend = await service.getAllAttendance();
     res.send(attend);
 }
-const getEmployeeByName = async (req, res, service) => {
-    const name = req.params.name;
-    const employee = await service.getEmployeeByName(name);
-    res.send(employee)
+const getAttendanceList = async (req, res, service) => {
+    try {
+        let attend;
+        if (req.query.site) {
+            const site = req.query.site
+            attend = await service.getAttendaceBySite(site);
+        } else if (req.query.name) {
+            const name = req.query.name;
+            attend = await service.getEmployeeByName(name);
+        }
+        res.send(attend);
+    } catch (e) {
+        res.sendStatus(500)
+    }
 }
 const createAttendance = async (req, res, service) => {
     const attendance = req.body;
@@ -23,4 +33,4 @@ const updateAttendance = async (req, res, service) => {
     res.send(updateAttendance);
 }
 
-module.exports = { getAllAttendance, getEmployeeByName, createAttendance, deleteAttendance, updateAttendance };
+module.exports = { getAllAttendance, getAttendanceList, createAttendance, deleteAttendance, updateAttendance };

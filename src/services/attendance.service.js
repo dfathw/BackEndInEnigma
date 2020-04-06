@@ -9,14 +9,40 @@ class AttendanceService {
         let result;
         try {
             result = await Attendance.findAll({
-                include: [{
+                include: {
                     model: Employee,
-                    include: [Site],
-                    attributes: {
-                        exclude: ["SiteMasterId",]
+                    include: {
+                        model: Site,
+                        attributes: {
+                            exclude: ["SiteMasterId",]
+                        }
                     }
-                }]
+                }
             });
+        } catch (e) {
+            logEvent.emit('APP-ERROR', {
+                logTitle: 'GET-ATTENDANCE-SERVICE-FAILED',
+                logMessage: e
+            });
+            throw new Error(e);
+        }
+        return result;
+    }
+    async getAttendaceBySite(site) {
+        let result;
+        try {
+            result = await Attendance.findAll({
+                include: {
+                    model: Employee,
+                    include: {
+                        model: Site,
+                        where: { alias_name: site },
+                        attributes: {
+                            exclude: ['SiteMasterId']
+                        }
+                    }
+                }
+            })
         } catch (e) {
             logEvent.emit('APP-ERROR', {
                 logTitle: 'GET-ATTENDANCE-SERVICE-FAILED',
@@ -29,7 +55,14 @@ class AttendanceService {
     async getEmployeeByName(name) {
         let result;
         try {
-            result = await Employee.findOne({ where: { name: name }, include: Attendance })
+            result = await Employee.findOne({
+                where: { name: name },
+                attributes: { exclude: ['SiteMasterId'] },
+                include: [
+                    { model: Site },
+                    { model: Attendance }
+                ]
+            })
         } catch (e) {
             logEvent.emit('APP-ERROR', {
                 logTitle: 'GET-ATTENDANCE-SERVICE-FAILED',
