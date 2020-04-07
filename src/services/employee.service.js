@@ -1,12 +1,30 @@
 const logEvent = require('../events/logging.listener');
 const Employee = require('../models/employee.model');
 const Site = require('../models/site_master.model');
+const _ = require('lodash');
 
 class EmployeeService {
     async getAllEmployee() {
         let result;
         try {
             result = await Employee.findAll({ include: Site });
+        } catch (e) {
+            logEvent.emit('APP-ERROR', {
+                logTitle: 'GET-EMPLOYEE-SERVICE-FAILED',
+                logMessage: e
+            });
+            throw new Error(e);
+        }
+        return result;
+    }
+    async getEmployeeByID(id) {
+        let result;
+        try {
+            result = await Employee.findAll({
+                where: {
+                    id: id
+                }
+            })
         } catch (e) {
             logEvent.emit('APP-ERROR', {
                 logTitle: 'GET-EMPLOYEE-SERVICE-FAILED',
@@ -62,7 +80,10 @@ class EmployeeService {
     }
     async updateEmployee(newEmployee) {
         const employee = await Employee.findOne({ where: { name: newEmployee.name } });
-        employee.identity = newEmployee.identity;
+        _.map(newEmployee, (prop) => {
+            employee.prop = newEmployee.prop;
+        });
+        // employee.identity = newEmployee.identity;
         let result;
         try {
             result = await employee.save();

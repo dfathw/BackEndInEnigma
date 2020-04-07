@@ -3,21 +3,14 @@ const Employee = require('../models/employee.model')
 const Attendance = require('../models/attendance.model')
 const Site = require('../models/site_master.model');
 const EmpAtt = require('../models/employeeAttendance.model');
+const Op = require('sequelize').Op;
 
 class AttendanceService {
     async getAllAttendance() {
         let result;
         try {
-            result = await Attendance.findAll({
-                include: {
-                    model: Employee,
-                    include: {
-                        model: Site,
-                        attributes: {
-                            exclude: ["SiteMasterId",]
-                        }
-                    }
-                }
+            result = await Employee.findAll({
+                include: [Site, Attendance]
             });
         } catch (e) {
             logEvent.emit('APP-ERROR', {
@@ -28,20 +21,18 @@ class AttendanceService {
         }
         return result;
     }
-    async getAttendaceBySite(site) {
+    async getAttendanceByDate(date) {
         let result;
         try {
-            result = await Attendance.findAll({
-                include: {
-                    model: Employee,
-                    include: {
-                        model: Site,
-                        where: { alias_name: site },
-                        attributes: {
-                            exclude: ['SiteMasterId']
-                        }
+            result = await Employee.findAll({
+                include: [{
+                    model: Site
+                }, {
+                    model: Attendance,
+                    where: {
+                        date: date
                     }
-                }
+                }]
             })
         } catch (e) {
             logEvent.emit('APP-ERROR', {
@@ -52,7 +43,56 @@ class AttendanceService {
         }
         return result;
     }
-    async getEmployeeByName(name) {
+    async getAttendanceDateBetween(date1, date2) {
+        let result;
+        try {
+            result = await Employee.findAll({
+                include: [{
+                    model: Site
+                }, {
+                    model: Attendance,
+                    where: {
+                        date: {
+                            [Op.between]: [date1, date2]
+                        }
+                    }
+                }]
+            })
+        } catch (e) {
+            logEvent.emit('APP-ERROR', {
+                logTitle: 'GET-ATTENDANCE-SERVICE-FAILED',
+                logMessage: e
+            });
+            throw new Error(e);
+        }
+        return result;
+    }
+
+    async getAttendaceBySite(site) {
+        let result;
+        try {
+            result = await Employee.findAll({
+                include: [{
+                        model: Site,
+                        where: {
+                            alias_name: site
+                        }
+                    },
+                    {
+                        model: Attendance,
+                    }
+                ]
+            })
+        } catch (e) {
+            logEvent.emit('APP-ERROR', {
+                logTitle: 'GET-ATTENDANCE-SERVICE-FAILED',
+                logMessage: e
+            });
+            throw new Error(e);
+        }
+        return result;
+    }
+    async getAttendanceByName(name) {
         let result;
         try {
             result = await Employee.findOne({
@@ -72,10 +112,38 @@ class AttendanceService {
         }
         return result;
     }
-    async createAttendance(attendance) {
+    async getAttendanceByEmployeeID(employeeID) {
         let result;
         try {
-            result = await Attendance.create(attendance);
+            result = await Employee.findOne({
+                where: { id: employeeID },
+                attributes: { exclude: ['SiteMasterId'] },
+                include: [
+                    { model: Site },
+                    { model: Attendance }
+                ]
+            })
+        } catch (e) {
+            logEvent.emit('APP-ERROR', {
+                logTitle: 'GET-ATTENDANCE-SERVICE-FAILED',
+                logMessage: e
+            });
+            throw new Error(e);
+        }
+        return result;
+    }
+    async createAttendance(attendance) {
+        let result;
+        const employeeID = attendance.employeeID;
+        const site = attendance.site;
+        try {
+            const getEmployee = await Employee.findAll({ where: { id: employeeID } });
+            result = await Attendance.create({
+                "enter_at": attendance.enter_at,
+                "out_at": attendance.out_at,
+                "date": attendance.date,
+            });
+            result.addEmployee(getEmployee);
         } catch (e) {
             logEvent.emit('APP-ERROR', {
                 logTitle: 'CREATE-ATTENDANCE-SERVICE-FAILED',
